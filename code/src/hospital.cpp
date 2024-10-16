@@ -3,6 +3,8 @@
 #include <iostream>
 #include <pcosynchro/pcothread.h>
 
+#include "utils.h"
+
 IWindowInterface* Hospital::interface = nullptr;
 
 Hospital::Hospital(int uniqueId, int fund, int maxBeds)
@@ -19,7 +21,11 @@ Hospital::Hospital(int uniqueId, int fund, int maxBeds)
 }
 
 int Hospital::request(ItemType what, int qty){
-    // TODO 
+    // TODO
+    if(stocks[what] >= qty) {
+        stocks[what] -= qty;
+        return 1;
+    }
     return 0;
 }
 
@@ -31,8 +37,26 @@ void Hospital::transferPatientsFromClinic() {
     // TODO
 }
 
+/**
+ * \brief Sends a specified quantity of an item to the hospital.
+ *
+ * This function attempts to send a specified quantity of an item to the hospital.
+ * It checks if the hospital has enough funds to cover the bill and if there are enough beds available.
+ * If both conditions are met, the function updates the number of hospitalized patients, deducts the bill from the hospital's funds,
+ * and increases the stock of the specified item.
+ *
+ * @param it The type of item to be sent.
+ * @param qty The quantity of the item to be sent.
+ * @param bill The cost associated with sending the item.
+ * \return 1 if the item was successfully sent, 0 otherwise.
+ */
 int Hospital::send(ItemType it, int qty, int bill) {
-    // TODO
+    if(money-bill >= 0 && this->getNumberPatients() + qty <= this->maxBeds) {
+        nbHospitalised += qty;
+        money -= bill;
+        stocks[it] += qty;
+        return 1;
+    }
     return 0;
 }
 
@@ -44,8 +68,9 @@ void Hospital::run()
     }
 
     interface->consoleAppendText(uniqueId, "[START] Hospital routine");
-
-    while (true /*TODO*/) {
+    
+    //Update to this while() so it stops when requested to.
+    while (!PcoThread::thisThread()->stopRequested()) {
         transferPatientsFromClinic();
 
         freeHealedPatient();

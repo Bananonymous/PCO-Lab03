@@ -27,7 +27,10 @@ bool Clinic::verifyResources() {
 
 int Clinic::request(ItemType what, int qty){
     // TODO 
-
+    if(stocks[what] >= qty) {
+        stocks[what] -= qty;
+        return 1;
+    }
     return 0;
 }
 
@@ -43,7 +46,9 @@ void Clinic::treatPatient() {
 }
 
 void Clinic::orderResources() {
-    // TODO 
+    // TODO
+
+    if()
 }
 
 void Clinic::run() {
@@ -53,7 +58,7 @@ void Clinic::run() {
     }
     interface->consoleAppendText(uniqueId, "[START] Factory routine");
 
-    while (true /*TODO*/) {
+    while (!PcoThread::thisThread()->stopRequested()) {
         
         if (verifyResources()) {
             treatPatient();

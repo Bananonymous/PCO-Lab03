@@ -3,6 +3,9 @@
 
 void Utils::endService() {
     // TODO
+    for (const auto & thread : threads) {
+        thread->requestStop();
+    }
 }
 
 void Utils::externalEndService() {
