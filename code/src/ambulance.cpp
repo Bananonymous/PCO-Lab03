@@ -28,10 +28,12 @@ Ambulance::Ambulance(int uniqueId, int fund, std::vector<ItemType> resourcesSupp
  */
 void Ambulance::sendPatient() {
     auto randHosp = this->chooseRandomSeller(hospitals);
-    if (randHosp->send(ItemType::PatientSick, 10, 4)) {
-        money += getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick));
+    int bill = getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick));
+    int qtyPatients = 10;
+    if (randHosp->send(ItemType::PatientSick, qtyPatients, bill)) {
+        money += bill;
 
-        this->stocks[ItemType::PatientSick] -= 1;
+        this->stocks[ItemType::PatientSick] -= qtyPatients;
 
         ++nbTransfer;
     }
