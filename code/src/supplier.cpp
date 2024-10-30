@@ -5,10 +5,10 @@
 IWindowInterface* Supplier::interface = nullptr;
 
 Supplier::Supplier(int uniqueId, int fund, std::vector<ItemType> resourcesSupplied)
-    : Seller(fund, uniqueId), resourcesSupplied(resourcesSupplied), nbSupplied(0) 
+    : Seller(fund, uniqueId), resourcesSupplied(resourcesSupplied), nbSupplied(0)
 {
-    for (const auto& item : resourcesSupplied) {    
-        stocks[item] = 0;    
+    for (const auto& item : resourcesSupplied) {
+        stocks[item] = 0;
     }
 
     interface->consoleAppendText(uniqueId, QString("Supplier Created"));
@@ -26,13 +26,28 @@ void Supplier::run() {
     while (!PcoThread::thisThread()->stopRequested()) {
         ItemType resourceSupplied = getRandomItemFromStock();
         int supplierCost = getEmployeeSalary(getEmployeeThatProduces(resourceSupplied));
-        // TODO 
 
-        /* Temps aléatoire borné qui simule l'attente du travail fini*/
-        interface->simulateWork();
-        //TODO
 
-        nbSupplied++;
+
+        // TODO
+        if(money>= supplierCost){
+
+
+            /* Temps aléatoire borné qui simule l'attente du travail fini*/
+            interface->simulateWork();
+            //TODO
+
+
+
+
+            money-=supplierCost;
+
+            stocks[resourceSupplied]+=1;
+
+            nbSupplied++;
+
+        }
+
 
         interface->updateFund(uniqueId, money);
         interface->updateStock(uniqueId, &stocks);
