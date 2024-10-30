@@ -39,14 +39,21 @@ int Clinic::request(ItemType what, int qty){
 
 void Clinic::treatPatient() {
     // TODO
-    money -= getEmployeeSalary(EmployeeType::Doctor);
+    int bill = getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientHealed));
+    if(money -  bill >= 0) {
+        money -= bill;
+        //Temps simulant un traitement
+        interface->simulateWork();
 
-    //Temps simulant un traitement 
-    interface->simulateWork();
+        // TODO
+        for (auto item : resourcesNeeded) {
+            --stocks[item];
+        }
+        ++stocks[ItemType::PatientHealed];
 
-    // TODO 
-    
-    interface->consoleAppendText(uniqueId, "Clinic have healed a new patient");
+        ++nbTreated;
+        interface->consoleAppendText(uniqueId, "Clinic have healed a new patient");
+    }
 }
 
 void Clinic::orderResources() {
@@ -54,14 +61,14 @@ void Clinic::orderResources() {
     auto randHosp = this->chooseRandomSeller(hospitals);
     auto randSupp = this->chooseRandomSeller(suppliers);
     int qty = 1;
-    if (randHosp->request(ItemType::PatientSick, qty)) {
+    if (randHosp->request(ItemType::PatientSick, qty) and money - getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick)) >= 0) {
         this->stocks[ItemType::PatientSick] += qty;
         money -= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick));
     }
 
     auto supplies = {ItemType::Pill,ItemType::Scalpel,ItemType::Stethoscope,ItemType::Syringe,ItemType::Thermometer};
     for (auto i : supplies) {
-        if (randSupp->request(i, qty)) {
+        if (randSupp->request(i, qty) and money-getCostPerUnit(i)*qty >= 0) {
             this->stocks[i] += qty;
             money -= getCostPerUnit(i)*qty;
         }
