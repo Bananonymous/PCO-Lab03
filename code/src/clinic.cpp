@@ -48,7 +48,6 @@ void Clinic::treatPatient() {
 void Clinic::orderResources() {
     // TODO
 
-    if()
 }
 
 void Clinic::run() {
