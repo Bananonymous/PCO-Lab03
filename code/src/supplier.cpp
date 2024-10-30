@@ -18,6 +18,12 @@ Supplier::Supplier(int uniqueId, int fund, std::vector<ItemType> resourcesSuppli
 
 int Supplier::request(ItemType it, int qty) {
     // TODO
+    int bill = qty*getCostPerUnit(it);
+    if(stocks[it] >= qty) {
+        stocks[it] -= qty;
+        money += bill;
+        return 1;
+    }
     return 0;
 }
 

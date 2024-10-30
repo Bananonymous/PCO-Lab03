@@ -53,12 +53,19 @@ void Clinic::orderResources() {
     // TODO
     auto randHosp = this->chooseRandomSeller(hospitals);
     auto randSupp = this->chooseRandomSeller(suppliers);
-    int qty = 4;
+    int qty = 1;
     if (randHosp->request(ItemType::PatientSick, qty)) {
         this->stocks[ItemType::PatientSick] += qty;
         money -= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick));
     }
 
+    auto supplies = {ItemType::Pill,ItemType::Scalpel,ItemType::Stethoscope,ItemType::Syringe,ItemType::Thermometer};
+    for (auto i : supplies) {
+        if (randSupp->request(i, qty)) {
+            this->stocks[i] += qty;
+            money -= getCostPerUnit(i)*qty;
+        }
+    }
 
 }
 
