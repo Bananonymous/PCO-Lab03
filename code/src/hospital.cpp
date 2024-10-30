@@ -22,8 +22,10 @@ Hospital::Hospital(int uniqueId, int fund, int maxBeds)
 
 int Hospital::request(ItemType what, int qty){
     // TODO
+    int bill = getEmployeeSalary(getEmployeeThatProduces(what));
     if(stocks[what] >= qty) {
         stocks[what] -= qty;
+        money += bill;
         return 1;
     }
     return 0;

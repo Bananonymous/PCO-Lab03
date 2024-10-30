@@ -3,6 +3,7 @@
 #include <pcosynchro/pcothread.h>
 #include <iostream>
 
+
 IWindowInterface* Clinic::interface = nullptr;
 
 Clinic::Clinic(int uniqueId, int fund, std::vector<ItemType> resourcesNeeded)
@@ -27,15 +28,18 @@ bool Clinic::verifyResources() {
 
 int Clinic::request(ItemType what, int qty){
     // TODO 
+    int bill = getEmployeeSalary(getEmployeeThatProduces(what));
     if(stocks[what] >= qty) {
         stocks[what] -= qty;
+        money += bill;
         return 1;
     }
     return 0;
 }
 
 void Clinic::treatPatient() {
-    // TODO 
+    // TODO
+    money -= getEmployeeSalary(EmployeeType::Doctor);
 
     //Temps simulant un traitement 
     interface->simulateWork();
@@ -47,6 +51,14 @@ void Clinic::treatPatient() {
 
 void Clinic::orderResources() {
     // TODO
+    auto randHosp = this->chooseRandomSeller(hospitals);
+    auto randSupp = this->chooseRandomSeller(suppliers);
+    int qty = 4;
+    if (randHosp->request(ItemType::PatientSick, qty)) {
+        this->stocks[ItemType::PatientSick] += qty;
+        money -= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick));
+    }
+
 
 }
 

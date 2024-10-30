@@ -2,7 +2,7 @@
 
 
 void Utils::endService() {
-    // TODO
+    // DONE
     for (const auto & thread : threads) {
         thread->requestStop();
     }
