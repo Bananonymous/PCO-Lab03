@@ -9,6 +9,10 @@
 #include "seller.h"
 
 class Supplier : public Seller {
+private:
+    //TODO: verify
+    PcoMutex supplier_mutex{PcoMutex::RecursionMode::Recursive};
+
 public:
     /**
      * @brief Supplier Constructor

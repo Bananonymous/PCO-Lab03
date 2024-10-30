@@ -35,6 +35,8 @@ void Supplier::run() {
 
 
 
+
+
         // TODO
         if(money>= supplierCost){
 
