@@ -29,17 +29,22 @@ bool Clinic::verifyResources() {
 int Clinic::request(ItemType what, int qty){
     // TODO 
     int bill = getEmployeeSalary(getEmployeeThatProduces(what));
+    mutex.lock();
     if(stocks[what] >= qty) {
         stocks[what] -= qty;
         money += bill;
+        mutex.unlock();
         return 1;
     }
+    mutex.unlock();
     return 0;
 }
 
 void Clinic::treatPatient() {
     // TODO
     int bill = getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientHealed));
+
+    mutex.lock();
     if(money -  bill >= 0) {
         money -= bill;
         //Temps simulant un traitement
@@ -53,26 +58,36 @@ void Clinic::treatPatient() {
 
         ++nbTreated;
         interface->consoleAppendText(uniqueId, "Clinic have healed a new patient");
+
     }
+
+    mutex.unlock();
 }
 
 void Clinic::orderResources() {
     // TODO
-    auto randHosp = this->chooseRandomSeller(hospitals);
-    auto randSupp = this->chooseRandomSeller(suppliers);
+    auto randHosp = chooseRandomSeller(hospitals);
     int qty = 1;
-    if (randHosp->request(ItemType::PatientSick, qty) and money - getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick)) >= 0) {
-        this->stocks[ItemType::PatientSick] += qty;
-        money -= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick));
-    }
-
-    auto supplies = {ItemType::Pill,ItemType::Scalpel,ItemType::Stethoscope,ItemType::Syringe,ItemType::Thermometer};
-    for (auto i : supplies) {
-        if (randSupp->request(i, qty) and money-getCostPerUnit(i)*qty >= 0) {
-            this->stocks[i] += qty;
-            money -= getCostPerUnit(i)*qty;
+    auto sick = ItemType::PatientSick;
+    mutex.lock();
+    if (money - getEmployeeSalary(EmployeeType::Nurse) >= 0) {
+        if(randHosp->request(sick, qty)) {
+            stocks[sick] += qty;
+            money -= getEmployeeSalary(EmployeeType::Nurse)*qty;
         }
     }
+
+
+    auto randSupp = chooseRandomSeller(suppliers);
+    for (auto i : resourcesNeeded) {
+        if(money-getCostPerUnit(i)*qty >= 0) {
+            if (randSupp->request(i, qty)) {
+                stocks[i] += qty;
+                money -= getCostPerUnit(i)*qty;
+            }
+        }
+    }
+    mutex.unlock();
 
 }
 

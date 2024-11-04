@@ -23,6 +23,8 @@ public:
      */
     Hospital(int uniqueId, int fund, int maxBeds);
 
+    PcoMutex mutex;
+
     /**
      * @brief run
      * La boucle principale de l'hôpital, qui gère l'import de patients des ambulances et des cliniques.
@@ -101,6 +103,8 @@ private:
     int currentBeds;    // Nombre actuel de lits occupés, représente le nombre de patients présents
 
     int nbHospitalised; //Nombre de transfert réussi vers l'hôpital (nombre de fois ou un(e) infirmier/infirmière est payé)
+
+    int dayCounter;
 
     int nbFree; // Nombre de personnes qui sont sorties soignées de l'hôpital.
 

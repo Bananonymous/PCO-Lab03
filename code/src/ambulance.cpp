@@ -28,15 +28,19 @@ Ambulance::Ambulance(int uniqueId, int fund, std::vector<ItemType> resourcesSupp
  */
 void Ambulance::sendPatient() {
     auto randHosp = this->chooseRandomSeller(hospitals);
-    int bill = getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick));
-    int qtyPatients = 10;
-    if (randHosp->send(ItemType::PatientSick, qtyPatients, bill)) {
-        money += bill;
+    int qtyPatients = 1;
+    int bill = getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick))*qtyPatients;
+    mutex.lock();
+    if(stocks[ItemType::PatientSick] >= qtyPatients) {
+        if (randHosp->send(ItemType::PatientSick, qtyPatients, bill)) {
+            money += bill;
 
-        this->stocks[ItemType::PatientSick] -= qtyPatients;
+            this->stocks[ItemType::PatientSick] -= qtyPatients;
 
-        ++nbTransfer;
+            nbTransfer+=qtyPatients;
+        }
     }
+    mutex.unlock();
 }
 
 void Ambulance::run() {

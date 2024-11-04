@@ -24,6 +24,8 @@ public:
      */
     Ambulance(int uniqueId, int fund, std::vector<ItemType> resourcesSupplied, std::map<ItemType, int> initialStocks);
 
+    PcoMutex mutex;
+
     /**
      * @brief getItemsForSale
      * @return Les items disponibles dans les stocks de l'ambulance pour vente ou transfert

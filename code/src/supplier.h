@@ -22,6 +22,8 @@ public:
      */
     Supplier(int uniqueId, int fund, std::vector<ItemType> resourcesSupplied);
 
+    PcoMutex mutex;
+
     /**
      * @brief Obtenir les items à vendre
      * @return Les items dans les stocks à vendre sous forme d'une map (clé : type d'item, valeur : quantité)

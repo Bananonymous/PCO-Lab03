@@ -19,11 +19,14 @@ Supplier::Supplier(int uniqueId, int fund, std::vector<ItemType> resourcesSuppli
 int Supplier::request(ItemType it, int qty) {
     // TODO
     int bill = qty*getCostPerUnit(it);
+    mutex.lock();
     if(stocks[it] >= qty) {
         stocks[it] -= qty;
         money += bill;
+        mutex.unlock();
         return 1;
     }
+    mutex.unlock();
     return 0;
 }
 
@@ -38,7 +41,7 @@ void Supplier::run() {
 
 
         // TODO
-        if(money>= supplierCost){
+        if(money >= supplierCost){
 
 
             /* Temps aléatoire borné qui simule l'attente du travail fini*/

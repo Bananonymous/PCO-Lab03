@@ -22,6 +22,8 @@ public:
      */
     Clinic(int uniqueId, int fund, std::vector<ItemType> resourcesNeeded);
 
+    PcoMutex mutex;
+
     /**
      * @brief run
      * La routine principale de la clinique, qui appelle les fonctions privées pour que la clinique fonctionne continuellement.

@@ -2,6 +2,7 @@
 #include "costs.h"
 #include <iostream>
 #include <pcosynchro/pcothread.h>
+#include <sys/stat.h>
 
 #include "utils.h"
 
@@ -22,21 +23,51 @@ Hospital::Hospital(int uniqueId, int fund, int maxBeds)
 
 int Hospital::request(ItemType what, int qty){
     // TODO
-    int bill = getEmployeeSalary(getEmployeeThatProduces(what));
+    const int bill = getEmployeeSalary(EmployeeType::Nurse);
+    mutex.lock();
     if(stocks[what] >= qty) {
         stocks[what] -= qty;
         money += bill;
+        mutex.unlock();
         return 1;
     }
+    mutex.unlock();
     return 0;
 }
 
 void Hospital::freeHealedPatient() {
-    // TODO 
+    // TODO
+    mutex.lock();
+    if(stocks[ItemType::PatientHealed] > 0) {
+        if(dayCounter > 0) {
+            dayCounter -= 1;
+        } else {
+            stocks[ItemType::PatientHealed] -= 1;
+            interface->consoleAppendText(uniqueId, "Hospital has freed a new patient");
+            ++nbFree;
+            dayCounter = 5;
+        }
+    }
+    mutex.unlock();
 }
 
 void Hospital::transferPatientsFromClinic() {
     // TODO
+
+    mutex.lock();
+    if(getNumberPatients() < MAX_BEDS_PER_HOSTPITAL) {
+        auto randClinic = this->chooseRandomSeller(clinics);
+        int bill = getEmployeeSalary(EmployeeType::Nurse);
+        if(money - bill >= 0) {
+            if(randClinic->request(ItemType::PatientHealed, 1)) {
+                stocks[ItemType::PatientHealed] += 1;
+                money -= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientHealed));
+                nbHospitalised += 1;
+            }
+        }
+    }
+
+    mutex.unlock();
 }
 
 /**
@@ -53,12 +84,16 @@ void Hospital::transferPatientsFromClinic() {
  * \return 1 if the item was successfully sent, 0 otherwise.
  */
 int Hospital::send(ItemType it, int qty, int bill) {
-    if(money-bill >= 0 && this->getNumberPatients() + qty <= this->maxBeds) {
+    mutex.lock();
+    if(money-bill >= 0 && getNumberPatients() + qty <= this->maxBeds) {
         nbHospitalised += qty;
         money -= bill;
         stocks[it] += qty;
+        mutex.unlock();
         return 1;
     }
+
+    mutex.unlock();
     return 0;
 }
 
