@@ -10,7 +10,6 @@
 
 class Supplier : public Seller {
 private:
-    //TODO: verify
     PcoMutex supplier_mutex{PcoMutex::RecursionMode::Recursive};
 
 public:
@@ -21,8 +20,6 @@ public:
      * @param resourcesSupplied : Liste des ressources fournies par ce Supplier
      */
     Supplier(int uniqueId, int fund, std::vector<ItemType> resourcesSupplied);
-
-    PcoMutex mutex;
 
     /**
      * @brief Obtenir les items à vendre

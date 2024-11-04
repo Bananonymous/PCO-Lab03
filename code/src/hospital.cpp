@@ -23,21 +23,23 @@ Hospital::Hospital(int uniqueId, int fund, int maxBeds)
 
 int Hospital::request(ItemType what, int qty){
     // TODO
+
+       hospital_mutex.lock();
     const int bill = getEmployeeSalary(EmployeeType::Nurse);
-    mutex.lock();
+
     if(stocks[what] >= qty) {
         stocks[what] -= qty;
         money += bill;
-        mutex.unlock();
+        hospital_mutex.unlock();
         return 1;
     }
-    mutex.unlock();
+    hospital_mutex.unlock();
     return 0;
 }
 
 void Hospital::freeHealedPatient() {
     // TODO
-    mutex.lock();
+    //mutex.lock();
     if(stocks[ItemType::PatientHealed] > 0) {
         if(dayCounter > 0) {
             dayCounter -= 1;
@@ -48,13 +50,13 @@ void Hospital::freeHealedPatient() {
             dayCounter = 5;
         }
     }
-    mutex.unlock();
+    //mutex.unlock();
 }
 
 void Hospital::transferPatientsFromClinic() {
     // TODO
 
-    mutex.lock();
+  //  mutex.lock();
     if(getNumberPatients() < MAX_BEDS_PER_HOSTPITAL) {
         auto randClinic = this->chooseRandomSeller(clinics);
         int bill = getEmployeeSalary(EmployeeType::Nurse);
@@ -67,7 +69,7 @@ void Hospital::transferPatientsFromClinic() {
         }
     }
 
-    mutex.unlock();
+  //  mutex.unlock();
 }
 
 /**
@@ -84,16 +86,16 @@ void Hospital::transferPatientsFromClinic() {
  * \return 1 if the item was successfully sent, 0 otherwise.
  */
 int Hospital::send(ItemType it, int qty, int bill) {
-    mutex.lock();
+    hospital_mutex.lock();
     if(money-bill >= 0 && getNumberPatients() + qty <= this->maxBeds) {
         nbHospitalised += qty;
         money -= bill;
         stocks[it] += qty;
-        mutex.unlock();
+        hospital_mutex.unlock();
         return 1;
     }
 
-    mutex.unlock();
+    hospital_mutex.unlock();
     return 0;
 }
 
@@ -108,9 +110,12 @@ void Hospital::run()
     
     //Update to this while() so it stops when requested to.
     while (!PcoThread::thisThread()->stopRequested()) {
+
+        hospital_mutex.lock();
         transferPatientsFromClinic();
 
         freeHealedPatient();
+hospital_mutex.unlock();
 
         interface->updateFund(uniqueId, money);
         interface->updateStock(uniqueId, &stocks);

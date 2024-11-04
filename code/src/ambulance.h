@@ -14,6 +14,9 @@
  *        Hérite de la classe Seller pour gérer le trading de patients.
  */
 class Ambulance : public Seller {
+private:
+    PcoMutex ambulance_mutex{PcoMutex::RecursionMode::Recursive};
+
 public:
     /**
      * @brief Constructeur de la classe Ambulance
@@ -24,7 +27,7 @@ public:
      */
     Ambulance(int uniqueId, int fund, std::vector<ItemType> resourcesSupplied, std::map<ItemType, int> initialStocks);
 
-    PcoMutex mutex{PcoMutex::RecursionMode::Recursive};
+    //PcoMutex mutex{PcoMutex::RecursionMode::Recursive};
 
     /**
      * @brief getItemsForSale

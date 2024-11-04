@@ -13,6 +13,9 @@
  */
 class Clinic : public Seller
 {
+private:
+    PcoMutex clinic_mutex{PcoMutex::RecursionMode::Recursive};
+
 public:
     /**
      * @brief Constructeur de la classe Clinic
@@ -22,7 +25,7 @@ public:
      */
     Clinic(int uniqueId, int fund, std::vector<ItemType> resourcesNeeded);
 
-    PcoMutex mutex{PcoMutex::RecursionMode::Recursive};
+   // PcoMutex mutex{PcoMutex::RecursionMode::Recursive};
 
     /**
      * @brief run

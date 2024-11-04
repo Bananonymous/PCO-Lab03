@@ -27,10 +27,14 @@ Ambulance::Ambulance(int uniqueId, int fund, std::vector<ItemType> resourcesSupp
  * the sick patient, the stock of sick patients is decreased by one, and the number of transfers is incremented.
  */
 void Ambulance::sendPatient() {
+
+    ambulance_mutex.lock();
+
     auto randHosp = this->chooseRandomSeller(hospitals);
     int qtyPatients = 1;
     int bill = getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick))*qtyPatients;
-    mutex.lock();
+
+
     if(stocks[ItemType::PatientSick] >= qtyPatients) {
         if (randHosp->send(ItemType::PatientSick, qtyPatients, bill)) {
             money += bill;
@@ -40,7 +44,7 @@ void Ambulance::sendPatient() {
             nbTransfer+=qtyPatients;
         }
     }
-    mutex.unlock();
+    ambulance_mutex.unlock();
 }
 
 void Ambulance::run() {

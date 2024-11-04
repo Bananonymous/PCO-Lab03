@@ -14,6 +14,9 @@
  */
 class Hospital : public Seller 
 {
+private:
+    PcoMutex hospital_mutex{PcoMutex::RecursionMode::Recursive};
+
 public:
     /**
      * @brief Hospital Constructor
@@ -23,7 +26,7 @@ public:
      */
     Hospital(int uniqueId, int fund, int maxBeds);
 
-    PcoMutex mutex{PcoMutex::RecursionMode::Recursive};
+   // PcoMutex mutex{PcoMutex::RecursionMode::Recursive};
 
     /**
      * @brief run

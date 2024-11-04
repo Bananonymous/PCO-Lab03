@@ -28,15 +28,16 @@ bool Clinic::verifyResources() {
 
 int Clinic::request(ItemType what, int qty){
     // TODO 
-    int bill = getEmployeeSalary(getEmployeeThatProduces(what));
-    mutex.lock();
+      clinic_mutex.lock();
+
+      int bill = getEmployeeSalary(getEmployeeThatProduces(what));
     if(stocks[what] >= qty) {
         stocks[what] -= qty;
         money += bill;
-        mutex.unlock();
+        clinic_mutex.unlock();
         return 1;
     }
-    mutex.unlock();
+    clinic_mutex.unlock();
     return 0;
 }
 
@@ -44,7 +45,7 @@ void Clinic::treatPatient() {
     // TODO
     int bill = getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientHealed));
 
-    mutex.lock();
+    //clinic_mutex.lock();
     if(money -  bill >= 0) {
         money -= bill;
         //Temps simulant un traitement
@@ -61,7 +62,7 @@ void Clinic::treatPatient() {
 
     }
 
-    mutex.unlock();
+    //clinic_mutex.unlock();
 }
 
 void Clinic::orderResources() {
@@ -69,7 +70,7 @@ void Clinic::orderResources() {
     auto randHosp = chooseRandomSeller(hospitals);
     int qty = 1;
     auto sick = ItemType::PatientSick;
-    mutex.lock();
+    //clinic_mutex.lock();
     if (money - getEmployeeSalary(EmployeeType::Nurse) >= 0) {
         if(randHosp->request(sick, qty)) {
             stocks[sick] += qty;
@@ -87,7 +88,7 @@ void Clinic::orderResources() {
             }
         }
     }
-    mutex.unlock();
+    //clinic_mutex.unlock();
 
 }
 
@@ -100,12 +101,14 @@ void Clinic::run() {
 
     while (!PcoThread::thisThread()->stopRequested()) {
         
+        clinic_mutex.lock();
         if (verifyResources()) {
             treatPatient();
         } else {
             orderResources();
         }
-       
+       clinic_mutex.unlock();
+
         interface->simulateWork();
 
         interface->updateFund(uniqueId, money);
