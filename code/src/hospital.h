@@ -67,7 +67,6 @@ public:
     void setClinics(std::vector<Seller*> clinics);
 
     int getNumberPatients();
-
     /**
      * @brief getAmountPaidToWorkers
      * @return Le montant total payé aux travailleurs de l'ambulance.
@@ -89,6 +88,8 @@ private:
      */
     void transferPatientsFromClinic();
 
+    std::vector<int> healedPatientsDaysLeft;
+
     /**
      * @brief buyResources
      * Fonction pour acheter des ressources, ici des patients, soit malades (d'ambulances) soit soignés (de cliniques).
@@ -105,8 +106,6 @@ private:
     int currentBeds;    // Nombre actuel de lits occupés, représente le nombre de patients présents
 
     int nbHospitalised; //Nombre de transfert réussi vers l'hôpital (nombre de fois ou un(e) infirmier/infirmière est payé)
-
-    int dayCounter;
 
     int nbFree; // Nombre de personnes qui sont sorties soignées de l'hôpital.
 

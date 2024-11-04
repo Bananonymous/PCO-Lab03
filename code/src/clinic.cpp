@@ -29,10 +29,8 @@ int Clinic::request(ItemType what, int qty) {
     // TODO
     clinic_mutex.lock();
 
-    int bill = getEmployeeSalary(getEmployeeThatProduces(what));
     if (stocks[what] >= qty) {
         stocks[what] -= qty;
-        money += bill;
         clinic_mutex.unlock();
         return 1;
     }
@@ -45,7 +43,7 @@ void Clinic::treatPatient() {
     int bill = getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientHealed));
 
     clinic_mutex.lock();
-    if (money - bill >= 0) {
+    if (money >= bill) {
         money -= bill;
         //Temps simulant un traitement
         interface->simulateWork();
@@ -68,7 +66,7 @@ void Clinic::orderResources() {
     auto randHosp = chooseRandomSeller(hospitals);
     int qty = 1;
     auto sick = ItemType::PatientSick;
-    clinic_mutex.lock();
+
     if (randHosp->request(sick, qty)) {
         stocks[sick] += qty;
     }
@@ -83,9 +81,6 @@ void Clinic::orderResources() {
             }
         }
     }
-
-
-    clinic_mutex.unlock();
 }
 
 void Clinic::run() {

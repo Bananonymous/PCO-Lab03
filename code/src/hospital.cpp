@@ -39,14 +39,16 @@ void Hospital::freeHealedPatient() {
     // TODO
     hospital_mutex.lock();
     if(stocks[ItemType::PatientHealed] > 0) {
-        if(dayCounter > 0) {
-            dayCounter -= 1;
-        } else {
-            stocks[ItemType::PatientHealed] -= 1;
-            interface->consoleAppendText(uniqueId, "Hospital has freed a new patient");
-            ++nbFree;
-            dayCounter = 5;
+        for(auto &i : healedPatientsDaysLeft) {
+            --i;
+            if(i == 0) {
+                stocks[ItemType::PatientHealed] -= 1;
+                interface->consoleAppendText(uniqueId, "Hospital has freed a new patient");
+                ++nbFree;
+            }
         }
+        healedPatientsDaysLeft.erase(std::remove(healedPatientsDaysLeft.begin(), healedPatientsDaysLeft.end(), 0),healedPatientsDaysLeft.end());
+        healedPatientsDaysLeft.shrink_to_fit();
     }
     hospital_mutex.unlock();
 }
@@ -57,14 +59,12 @@ void Hospital::transferPatientsFromClinic() {
   hospital_mutex.lock();
     if(getNumberPatients() < MAX_BEDS_PER_HOSTPITAL) {
         auto randClinic = this->chooseRandomSeller(clinics);
-        int bill = getEmployeeSalary(EmployeeType::Doctor);
-        if(money - bill >= 0) {
             if(randClinic->request(ItemType::PatientHealed, 1)) {
                 stocks[ItemType::PatientHealed] += 1;
                 ++nbHospitalised;
-                money -= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientHealed));
+                money -= getEmployeeSalary(EmployeeType::Nurse);
+                healedPatientsDaysLeft.push_back(5);
             }
-        }
     }
 
   hospital_mutex.unlock();
@@ -110,11 +110,9 @@ void Hospital::run()
     //Update to this while() so it stops when requested to.
     while (!PcoThread::thisThread()->stopRequested()) {
 
-        hospital_mutex.lock();
-        // transferPatientsFromClinic();
+        transferPatientsFromClinic();
 
         freeHealedPatient();
-        hospital_mutex.unlock();
 
         interface->updateFund(uniqueId, money);
         interface->updateStock(uniqueId, &stocks);
