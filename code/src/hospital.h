@@ -26,7 +26,6 @@ public:
      */
     Hospital(int uniqueId, int fund, int maxBeds);
 
-   // PcoMutex mutex{PcoMutex::RecursionMode::Recursive};
 
     /**
      * @brief run

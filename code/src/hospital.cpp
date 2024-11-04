@@ -24,12 +24,10 @@ Hospital::Hospital(int uniqueId, int fund, int maxBeds)
 int Hospital::request(ItemType what, int qty){
     // TODO
 
-       hospital_mutex.lock();
-    const int bill = getEmployeeSalary(EmployeeType::Nurse);
+    hospital_mutex.lock();
 
     if(stocks[what] >= qty) {
         stocks[what] -= qty;
-        money += bill;
         hospital_mutex.unlock();
         return 1;
     }
@@ -39,7 +37,7 @@ int Hospital::request(ItemType what, int qty){
 
 void Hospital::freeHealedPatient() {
     // TODO
-    //mutex.lock();
+    hospital_mutex.lock();
     if(stocks[ItemType::PatientHealed] > 0) {
         if(dayCounter > 0) {
             dayCounter -= 1;
@@ -50,26 +48,26 @@ void Hospital::freeHealedPatient() {
             dayCounter = 5;
         }
     }
-    //mutex.unlock();
+    hospital_mutex.unlock();
 }
 
 void Hospital::transferPatientsFromClinic() {
     // TODO
 
-  //  mutex.lock();
+  hospital_mutex.lock();
     if(getNumberPatients() < MAX_BEDS_PER_HOSTPITAL) {
         auto randClinic = this->chooseRandomSeller(clinics);
-        int bill = getEmployeeSalary(EmployeeType::Nurse);
+        int bill = getEmployeeSalary(EmployeeType::Doctor);
         if(money - bill >= 0) {
             if(randClinic->request(ItemType::PatientHealed, 1)) {
                 stocks[ItemType::PatientHealed] += 1;
+                ++nbHospitalised;
                 money -= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientHealed));
-                nbHospitalised += 1;
             }
         }
     }
 
-  //  mutex.unlock();
+  hospital_mutex.unlock();
 }
 
 /**
@@ -83,16 +81,17 @@ void Hospital::transferPatientsFromClinic() {
  * @param it The type of item to be sent.
  * @param qty The quantity of the item to be sent.
  * @param bill The cost associated with sending the item.
- * \return 1 if the item was successfully sent, 0 otherwise.
+ * \return The bill amount if the item was successfully sent, 0 otherwise.
  */
 int Hospital::send(ItemType it, int qty, int bill) {
     hospital_mutex.lock();
-    if(money-bill >= 0 && getNumberPatients() + qty <= this->maxBeds) {
+    if(money >= bill && getNumberPatients() + qty <= this->maxBeds) {
         nbHospitalised += qty;
         money -= bill;
+        money -= getEmployeeSalary(EmployeeType::Nurse);
         stocks[it] += qty;
         hospital_mutex.unlock();
-        return 1;
+        return bill;
     }
 
     hospital_mutex.unlock();
@@ -112,10 +111,10 @@ void Hospital::run()
     while (!PcoThread::thisThread()->stopRequested()) {
 
         hospital_mutex.lock();
-        transferPatientsFromClinic();
+        // transferPatientsFromClinic();
 
         freeHealedPatient();
-hospital_mutex.unlock();
+        hospital_mutex.unlock();
 
         interface->updateFund(uniqueId, money);
         interface->updateStock(uniqueId, &stocks);

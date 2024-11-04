@@ -27,17 +27,19 @@ Ambulance::Ambulance(int uniqueId, int fund, std::vector<ItemType> resourcesSupp
  * the sick patient, the stock of sick patients is decreased by one, and the number of transfers is incremented.
  */
 void Ambulance::sendPatient() {
-
+    // TODO
     ambulance_mutex.lock();
 
     auto randHosp = this->chooseRandomSeller(hospitals);
     int qtyPatients = 1;
-    int bill = getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick))*qtyPatients;
-
+    int bill = getCostPerUnit(ItemType::PatientSick)*qtyPatients;
 
     if(stocks[ItemType::PatientSick] >= qtyPatients) {
         if (randHosp->send(ItemType::PatientSick, qtyPatients, bill)) {
             money += bill;
+
+            if(money >= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick))*qtyPatients)
+                money -= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick))*qtyPatients;
 
             this->stocks[ItemType::PatientSick] -= qtyPatients;
 
@@ -50,7 +52,6 @@ void Ambulance::sendPatient() {
 void Ambulance::run() {
     interface->consoleAppendText(uniqueId, "[START] Ambulance routine");
 
-    //Update to this while() so it stops when requested to.
     while (!PcoThread::thisThread()->stopRequested()) {
         sendPatient();
         interface->simulateWork();
