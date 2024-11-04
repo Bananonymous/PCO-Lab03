@@ -18,12 +18,18 @@ Supplier::Supplier(int uniqueId, int fund, std::vector<ItemType> resourcesSuppli
 
 int Supplier::request(ItemType it, int qty) {
     // TODO
+    supplier_mutex.lock();
+
     int bill = qty*getCostPerUnit(it);
     if(stocks[it] >= qty) {
         stocks[it] -= qty;
         money += bill;
+
+        supplier_mutex.unlock();
         return 1;
     }
+
+    supplier_mutex.unlock();
     return 0;
 }
 
@@ -34,27 +40,21 @@ void Supplier::run() {
         int supplierCost = getEmployeeSalary(getEmployeeThatProduces(resourceSupplied));
 
 
-
-
+        supplier_mutex.lock();
 
         // TODO
         if(money>= supplierCost){
-
 
             /* Temps aléatoire borné qui simule l'attente du travail fini*/
             interface->simulateWork();
             //TODO
 
-
-
-
             money-=supplierCost;
-
             stocks[resourceSupplied]+=1;
-
             nbSupplied++;
-
         }
+
+        supplier_mutex.unlock();
 
 
         interface->updateFund(uniqueId, money);
