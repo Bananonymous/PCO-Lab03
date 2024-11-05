@@ -17,21 +17,24 @@ La plupart des méthodes suivantes comportent des sections critiques, qui ont é
 - La méthode `request()` gère les transactions d'achat de ressources en vérifiant la disponibilité des stocks et en mettant à jour les fonds.
 
 #### **Ambulances**
-
 - la méthode `sendPatient` a été implémentée pour choisir au hasard un des hôpitaux et y envoyer (si place disponible et leur argent le permet) 1 patient.
 
 
 #### **Hôpitaux**
-
-- la méthode `send` a été implémentée pour vérifier si l'hôpital possède assez de fond pour payer les frais d'un nouveau patient et vérifier si assez de lits sont disponibles.
-- la méthode `freeHealedPatient` a été implémentée pour libérer un lit et mettre à jour les fonds de l'hôpital un fois qu'ils ont passés 5 jours (cycles).
+- la méthode `send` a été implémentée pour vérifier si l'hôpital possède assez de fonds pour payer les frais d'un nouveau patient et vérifier si assez de lits sont disponibles.
+- la méthode `freeHealedPatient` a été implémentée pour libérer un lit et mettre à jour les fonds de l'hôpital une fois qu'ils y ont passé 5 jours (cycles).
 - la méthode `transferPatientsFromClinic` a été implémentée pour transférer les patients de la clinique à l'hôpital si les conditions le permettent.
 
 
 #### **Cliniques**
-- la méthode `sendPatient` a été implémentée pour vérifier si l'hôpital possède assez de fond pour payer les frais d'un nouveau patient et vérifier si assez de lits sont disponibles.
+- la méthode `sendPatient` a été implémentée pour vérifier si l'hôpital possède assez de fonds pour payer les frais d'un nouveau patient et vérifier si assez de lits sont disponibles.
 - la méthode `treatPatient` a été implémentée pour traiter un patient et mettre à jour les fonds de la clinique si les conditions le permettent.
 - la méthode `orderResources` a été implémentée pour commander des ressources (matériel / patients malades) si les conditions le permettent.
+
+
+#### **Fournisseurs de ressources**
+- dans la méthode `run` les ressources sont achetées de manière aléatoire.
+
 
 ## Tests effectués
 
