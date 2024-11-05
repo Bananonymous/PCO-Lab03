@@ -15,7 +15,7 @@
 // Helper functions for testing
 void sendPatients(Hospital& hospital, ItemType itemType, std::atomic<int>& totalPaid) {
     int tot = 0;
-    for (int i = 0; i < 10000; ++i) {
+    for (int i = 0; i < 20000; ++i) {
         int qty = 1;
         int bill = getCostPerUnit(itemType) * qty;
         if (hospital.send(itemType, qty, bill) > 0) {
@@ -27,20 +27,12 @@ void sendPatients(Hospital& hospital, ItemType itemType, std::atomic<int>& total
 
 void requestPatients(Hospital& hospital, ItemType itemType, std::atomic<int>& totalGained) {
     int tot = 0;
-    for (int i = 0; i < 10000; ++i) {
+    for (int i = 0; i < 20000; ++i) {
         int qty = 1;
         tot += hospital.request(itemType, qty);
     }
     totalGained += tot;
 }
-
-void sendAmbulancePatients(Ambulance& ambulance, std::atomic<int>& totalGained) {
-    for (int i = 0; i < 10000; ++i) {
-        ambulance.sendPatient();
-        totalGained += getCostPerUnit(ItemType::PatientSick);
-    }
-}
-
 
 // Test for Hospital class
 TEST(SellerTest, TestHospitals) {
@@ -73,10 +65,78 @@ TEST(SellerTest, TestHospitals) {
     endFund += totalPaid;
     endFund -= totalGained;
 
-    // EXPECT_EQ(endFund, initialFund);
+    EXPECT_EQ(endFund, initialFund);
     EXPECT_GE(hospital.getNumberPatients(), 0);
     EXPECT_LE(hospital.getNumberPatients(), maxBeds);
 }
+
+
+
+
+
+
+
+
+
+void requestSupplies(Supplier& supplier, ItemType itemType, std::atomic<int>& totalGained){
+    int tot = 0;
+    for (int i = 0; i < 20000; ++i) {
+        int qty = 1;
+        tot += supplier.request(itemType, qty);
+    }
+
+    totalGained += tot;
+}
+
+// Test for Supplier class
+TEST(SellerTest, TestSupplier){
+
+
+
+}
+
+
+
+
+
+void sendAmbulancePatients(Ambulance& ambulance, std::atomic<int>& totalGained) {
+    for (int i = 0; i < 20000; ++i) {
+        ambulance.sendPatient();
+        totalGained += getCostPerUnit(ItemType::PatientSick);
+    }
+}
+
+
+// Test for Ambulance class
+TEST(SellerTest, TestAmbulance){
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// Test for Clinic class
+TEST(SellerTest, TestClinic){
+
+
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
