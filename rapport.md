@@ -33,7 +33,7 @@ La plupart des méthodes suivantes comportent des sections critiques, qui ont é
 
 
 #### **Fournisseurs de ressources**
-- dans la méthode `run` les ressources sont achetées de manière aléatoire.
+- la méthode `run` achète les ressources de manière aléatoire.
 
 
 ## Tests effectués
