@@ -26,7 +26,7 @@ int Supplier::request(ItemType it, int qty) {
         money += bill;
 
         supplier_mutex.unlock();
-        return 1;
+        return bill;
     }
 
     supplier_mutex.unlock();

@@ -69,10 +69,12 @@ void Clinic::orderResources() {
     auto randHosp = chooseRandomSeller(hospitals);
     int qty = 1;
     auto sick = ItemType::PatientSick;
-    int bill = randHosp->request(sick, qty);
-    if (bill  != 0 && money >= bill) {
-        money -= bill;
-        stocks[sick] += qty;
+    int bill = getCostPerUnit(sick) * qty;
+    if(money >=  bill) {
+        if (randHosp->request(sick, qty) != 0){
+            money -= bill;
+            stocks[sick] += qty;
+        }
     }
 
 
