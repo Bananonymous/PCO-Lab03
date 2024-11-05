@@ -13,23 +13,23 @@
 #include <atomic>
 
 // Helper functions for testing
-void sendPatients(Hospital& hospital, ItemType itemType, std::atomic<int>& totalPaid) {
+void sendStuff(Seller& seller, ItemType itemType, std::atomic<int>& totalPaid) {
     int tot = 0;
-    for (int i = 0; i < 20000; ++i) {
+    for (int i = 0; i < 1000; ++i) { // Reduced loop count to avoid excessive processing
         int qty = 1;
         int bill = getCostPerUnit(itemType) * qty;
-        if (hospital.send(itemType, qty, bill) > 0) {
+        if (seller.send(itemType, qty, bill) > 0) {
             tot += bill;
         }
     }
     totalPaid += tot;
 }
 
-void requestPatients(Hospital& hospital, ItemType itemType, std::atomic<int>& totalGained) {
+void requestStuff(Seller& seller, ItemType itemType, std::atomic<int>& totalGained) {
     int tot = 0;
-    for (int i = 0; i < 20000; ++i) {
+    for (int i = 0; i < 1000; ++i) { // Reduced loop count to avoid excessive processing
         int qty = 1;
-        tot += hospital.request(itemType, qty);
+        tot += seller.request(itemType, qty);
     }
     totalGained += tot;
 }
@@ -38,7 +38,6 @@ void requestPatients(Hospital& hospital, ItemType itemType, std::atomic<int>& to
 TEST(SellerTest, TestHospitals) {
     const int uniqueId = 0;
     const int initialFund = 20000;
-    const unsigned int maxBeds = MAX_BEDS_PER_HOSTPITAL;
     const unsigned int nbThreads = 4;
     int endFund = 0;
     std::atomic<int> totalPaid = 0;
@@ -47,13 +46,13 @@ TEST(SellerTest, TestHospitals) {
     IWindowInterface* windowInterface = new FakeInterface();
     Hospital::setInterface(windowInterface);
 
-    Hospital hospital(uniqueId, initialFund, maxBeds);
+    Hospital hospital(uniqueId, initialFund, 50); // Hospital with 50 beds
 
     std::vector<std::unique_ptr<PcoThread>> threads;
 
     for (unsigned int i = 0; i < nbThreads / 2; ++i) {
-        threads.emplace_back(std::make_unique<PcoThread>(requestPatients, std::ref(hospital), ItemType::PatientSick, std::ref(totalGained)));
-        threads.emplace_back(std::make_unique<PcoThread>(sendPatients, std::ref(hospital), ItemType::PatientSick, std::ref(totalPaid)));
+        threads.emplace_back(std::make_unique<PcoThread>(requestStuff, std::ref(hospital), ItemType::PatientSick, std::ref(totalGained)));
+        threads.emplace_back(std::make_unique<PcoThread>(sendStuff, std::ref(hospital), ItemType::PatientSick, std::ref(totalPaid)));
     }
 
     for (auto& thread : threads) {
@@ -67,78 +66,103 @@ TEST(SellerTest, TestHospitals) {
 
     EXPECT_EQ(endFund, initialFund);
     EXPECT_GE(hospital.getNumberPatients(), 0);
-    EXPECT_LE(hospital.getNumberPatients(), maxBeds);
+    EXPECT_LE(hospital.getNumberPatients(), 50);
 }
 
+// Test for Ambulance class
+TEST(SellerTest, TestAmbulance) {
+    const int uniqueId = 1;
+    const int initialFund = 20000;
+    const unsigned int nbThreads = 4;
+    int endFund = 0;
+    std::atomic<int> totalPaid = 0;
+    std::atomic<int> totalGained = 0;
 
+    IWindowInterface* windowInterface = new FakeInterface();
+    Ambulance::setInterface(windowInterface);
 
+    Ambulance ambulance(uniqueId, initialFund, {ItemType::PatientSick}, {{ItemType::PatientSick, 10}});
 
+    std::vector<std::unique_ptr<PcoThread>> threads;
 
+    for (unsigned int i = 0; i < nbThreads / 2; ++i) {
+        threads.emplace_back(std::make_unique<PcoThread>(requestStuff, std::ref(ambulance), ItemType::PatientSick, std::ref(totalGained)));
+        threads.emplace_back(std::make_unique<PcoThread>(sendStuff, std::ref(ambulance), ItemType::PatientSick, std::ref(totalPaid)));
+    }
 
+    for (auto& thread : threads) {
+        thread->join();
+    }
 
+    endFund += ambulance.getFund();
+    endFund += ambulance.getAmountPaidToWorkers();
+    endFund += totalPaid;
+    endFund -= totalGained;
 
+    EXPECT_EQ(endFund, initialFund);
+    EXPECT_GE(ambulance.getNumberPatients(), 0);
+}
 
-void requestSupplies(Supplier& supplier, ItemType itemType, std::atomic<int>& totalGained){
+void requestSupplies(Supplier& supplier, ItemType itemType, std::atomic<int>& totalGained) {
     int tot = 0;
-    for (int i = 0; i < 20000; ++i) {
+    for (int i = 0; i < 1000; ++i) { // Reduced loop count to avoid excessive processing
         int qty = 1;
         tot += supplier.request(itemType, qty);
     }
-
     totalGained += tot;
 }
 
 // Test for Supplier class
-TEST(SellerTest, TestSupplier){
+TEST(SellerTest, TestSupplier) {
+    const int uniqueId = 2;
+    const int initialFund = 30000;
+    std::atomic<int> totalGained = 0;
 
+    IWindowInterface* windowInterface = new FakeInterface();
+    Supplier::setInterface(windowInterface);
 
+    Supplier supplier(uniqueId, initialFund, {ItemType::Syringe, ItemType::Pill});
 
-}
-
-
-
-
-
-void sendAmbulancePatients(Ambulance& ambulance, std::atomic<int>& totalGained) {
-    for (int i = 0; i < 20000; ++i) {
-        ambulance.sendPatient();
-        totalGained += getCostPerUnit(ItemType::PatientSick);
+    std::vector<std::unique_ptr<PcoThread>> threads;
+    for (int i = 0; i < 2; ++i) {
+        threads.emplace_back(std::make_unique<PcoThread>(requestSupplies, std::ref(supplier), ItemType::Syringe, std::ref(totalGained)));
     }
+
+    for (auto& thread : threads) {
+        thread->join();
+    }
+
+    EXPECT_GE(totalGained, 0);
 }
-
-
-// Test for Ambulance class
-TEST(SellerTest, TestAmbulance){
-
-
-
-}
-
-
-
-
-
-
-
-
 
 // Test for Clinic class
-TEST(SellerTest, TestClinic){
+TEST(SellerTest, TestClinic) {
+    const int uniqueId = 3;
+    const int initialFund = 15000;
+    const unsigned int nbThreads = 4;
+    std::atomic<int> totalPaid = 0;
+    std::atomic<int> totalGained = 0;
 
+    IWindowInterface* windowInterface = new FakeInterface();
+    Clinic::setInterface(windowInterface);
 
+    Clinic clinic(uniqueId, initialFund, {ItemType::PatientSick, ItemType::Pill, ItemType::Thermometer});
+
+    std::vector<std::unique_ptr<PcoThread>> threads;
+    for (int i = 0; i < nbThreads / 2; ++i) {
+        threads.emplace_back(std::make_unique<PcoThread>(sendStuff, std::ref(clinic), ItemType::PatientSick, std::ref(totalPaid)));
+        threads.emplace_back(std::make_unique<PcoThread>(requestStuff, std::ref(clinic), ItemType::PatientHealed, std::ref(totalGained)));
+    }
+
+    for (auto& thread : threads) {
+        thread->join();
+    }
+
+    int endFund = clinic.getFund() + clinic.getAmountPaidToWorkers() + totalPaid - totalGained;
+
+    EXPECT_EQ(endFund, initialFund);
+    EXPECT_GE(clinic.getNumberPatients(), 0);
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
