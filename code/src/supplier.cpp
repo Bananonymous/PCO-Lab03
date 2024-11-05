@@ -51,7 +51,7 @@ void Supplier::run() {
 
             money-=supplierCost;
             stocks[resourceSupplied]+=1;
-            nbSupplied++;
+            ++nbSupplied;
         }
 
         supplier_mutex.unlock();

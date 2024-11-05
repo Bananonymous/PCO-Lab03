@@ -2,6 +2,7 @@
 #include "costs.h"
 #include <pcosynchro/pcothread.h>
 #include <iostream>
+#include <variant>
 
 
 IWindowInterface *Clinic::interface = nullptr;
@@ -28,11 +29,13 @@ bool Clinic::verifyResources() {
 int Clinic::request(ItemType what, int qty) {
     // TODO
     clinic_mutex.lock();
+    int bill = getCostPerUnit(ItemType::PatientHealed)*qty;
 
     if (stocks[what] >= qty) {
         stocks[what] -= qty;
+        money += bill;
         clinic_mutex.unlock();
-        return 1;
+        return bill;
     }
     clinic_mutex.unlock();
     return 0;
@@ -66,8 +69,9 @@ void Clinic::orderResources() {
     auto randHosp = chooseRandomSeller(hospitals);
     int qty = 1;
     auto sick = ItemType::PatientSick;
-
-    if (randHosp->request(sick, qty)) {
+    int bill = randHosp->request(sick, qty);
+    if (bill  != 0 && money >= bill) {
+        money -= bill;
         stocks[sick] += qty;
     }
 

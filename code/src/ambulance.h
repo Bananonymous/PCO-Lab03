@@ -27,8 +27,6 @@ public:
      */
     Ambulance(int uniqueId, int fund, std::vector<ItemType> resourcesSupplied, std::map<ItemType, int> initialStocks);
 
-    //PcoMutex mutex{PcoMutex::RecursionMode::Recursive};
-
     /**
      * @brief getItemsForSale
      * @return Les items disponibles dans les stocks de l'ambulance pour vente ou transfert
@@ -96,13 +94,15 @@ public:
      */
     std::vector<ItemType> getResourcesSupplied() const;
 
+
+    void sendPatient();
+
 protected:
     /**
      * @brief sendPatient
      * Fonction responsable de l'envoi d'un patient à l'hôpital ou à la clinique.
      * Cette méthode gère les détails logistiques de la transmission d'un patient.
      */
-    void sendPatient();
 
     std::vector<ItemType> resourcesSupplied;  // Liste des items que ce fournisseur gère (ressources de l'ambulance)
     int nbTransfer;  // Nombre total d'items (patients) transférés par l'ambulance
