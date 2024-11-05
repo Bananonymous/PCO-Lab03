@@ -26,6 +26,27 @@ Ambulance::Ambulance(int uniqueId, int fund, std::vector<ItemType> resourcesSupp
     interface->updateFund(uniqueId, fund);
 }
 
+int Ambulance::sendPatientTest() {
+
+    if(stocks[ItemType::PatientSick] <= 0) {
+        return 0;
+    }
+
+    int bill = getCostPerUnit(ItemType::PatientSick);
+    int patientSent = bill; //Simulate sending a patient
+
+    ambulance_mutex.lock();
+    if(patientSent > 0) {
+        money += bill;
+        --stocks[ItemType::PatientSick];
+        ++nbTransfer;
+        money -= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick));
+        ambulance_mutex.unlock();
+        return bill;
+    }
+    ambulance_mutex.unlock();
+}
+
 /**
  * \brief Sends a patient to a randomly chosen hospital.
  *

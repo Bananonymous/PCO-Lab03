@@ -88,6 +88,8 @@ public:
      */
     void setHospitals(std::vector<Seller *> hospitals);
 
+    int sendPatientTest();
+
     /**
      * @brief setInterface
      * @param windowInterface Pointeur vers l'interface graphique utilisée pour afficher les logs et mises à jour
