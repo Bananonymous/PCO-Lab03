@@ -1,3 +1,10 @@
+/**
+ * @file supplier.h
+ * @author Berberat Alex
+ * @author Surbeck Léon
+ * @brief Declaration of supplier fonctions.
+ */
+
 #ifndef SUPPLIER_H
 #define SUPPLIER_H
 #include <QTimer>
@@ -10,7 +17,7 @@
 
 class Supplier : public Seller {
 private:
-    PcoMutex supplier_mutex{PcoMutex::RecursionMode::Recursive};
+    PcoMutex supplier_mutex{ PcoMutex::RecursionMode::Recursive };
 
 public:
     /**
@@ -66,7 +73,7 @@ public:
      * @brief Configurer l'interface graphique pour l'affichage des informations
      * @param windowInterface : Pointeur vers l'interface graphique utilisée pour afficher les logs et mises à jour
      */
-    static void setInterface(IWindowInterface* windowInterface);
+    static void setInterface(IWindowInterface *windowInterface);
 
     /**
      * @brief Obtenir la liste des ressources fournies par ce fournisseur
@@ -77,7 +84,7 @@ public:
 protected:
     std::vector<ItemType> resourcesSupplied;  // Liste des items que ce fournisseur gère
     int nbSupplied;  // Nombre total d'items fournis
-    static IWindowInterface* interface;  // Interface pour les logs et mises à jour
+    static IWindowInterface *interface;  // Interface pour les logs et mises à jour
 };
 
 
@@ -91,7 +98,7 @@ public:
      * @param fund : Argent initial disponible pour ce fournisseur
      */
     MedicalDeviceSupplier(int uniqueId, int fund)
-        : Supplier(uniqueId, fund, {ItemType::Scalpel, ItemType::Thermometer, ItemType::Stethoscope}) {
+        : Supplier(uniqueId, fund, { ItemType::Scalpel, ItemType::Thermometer, ItemType::Stethoscope }) {
         // Log de création spécifique à un fournisseur d'outils médicaux
         interface->consoleAppendText(uniqueId, QString("Medical Tool Supplier Created"));
     }
@@ -106,7 +113,7 @@ public:
      * @param fund : Argent initial disponible pour ce fournisseur
      */
     Pharmacy(int uniqueId, int fund)
-        : Supplier(uniqueId, fund, {ItemType::Syringe, ItemType::Pill}) {
+        : Supplier(uniqueId, fund, { ItemType::Syringe, ItemType::Pill }) {
         // Log de création spécifique à une pharmacie
         interface->consoleAppendText(uniqueId, QString("Pharmacy Created"));
     }

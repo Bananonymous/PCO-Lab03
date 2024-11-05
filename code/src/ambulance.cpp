@@ -1,3 +1,10 @@
+/**
+ * @file ambulance.cpp
+ * @author Berberat Alex
+ * @author Surbeck Léon
+ * @brief Implement all the fonctions to be able to handle ambulance.
+ */
+
 #include "ambulance.h"
 #include "costs.h"
 #include <pcosynchro/pcothread.h>
@@ -8,7 +15,7 @@ Ambulance::Ambulance(int uniqueId, int fund, std::vector<ItemType> resourcesSupp
     : Seller(fund, uniqueId), resourcesSupplied(resourcesSupplied), nbTransfer(0) {
     interface->consoleAppendText(uniqueId, QString("Ambulance Created"));
 
-    for (const auto &item: resourcesSupplied) {
+    for (const auto &item : resourcesSupplied) {
         if (initialStocks.find(item) != initialStocks.end()) {
             stocks[item] = initialStocks[item];
         } else {
@@ -27,23 +34,23 @@ Ambulance::Ambulance(int uniqueId, int fund, std::vector<ItemType> resourcesSupp
  * the sick patient, the stock of sick patients is decreased by one, and the number of transfers is incremented.
  */
 void Ambulance::sendPatient() {
-    // TODO
+    // DONE
     ambulance_mutex.lock();
 
     auto randHosp = this->chooseRandomSeller(hospitals);
     int qtyPatients = 1;
-    int bill = getCostPerUnit(ItemType::PatientSick)*qtyPatients;
+    int bill = getCostPerUnit(ItemType::PatientSick) * qtyPatients;
 
-    if(stocks[ItemType::PatientSick] >= qtyPatients) {
+    if (stocks[ItemType::PatientSick] >= qtyPatients) {
         if (randHosp->send(ItemType::PatientSick, qtyPatients, bill)) {
             money += bill;
 
-            if(money >= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick))*qtyPatients)
-                money -= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick))*qtyPatients;
+            if (money >= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick)) * qtyPatients)
+                money -= getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientSick)) * qtyPatients;
 
             this->stocks[ItemType::PatientSick] -= qtyPatients;
 
-            nbTransfer+=qtyPatients;
+            nbTransfer += qtyPatients;
         }
     }
     ambulance_mutex.unlock();
@@ -69,7 +76,7 @@ std::map<ItemType, int> Ambulance::getItemsForSale() {
 
 int Ambulance::getMaterialCost() {
     int totalCost = 0;
-    for (const auto &item: resourcesSupplied) {
+    for (const auto &item : resourcesSupplied) {
         totalCost += getCostPerUnit(item);
     }
     return totalCost;
@@ -91,7 +98,7 @@ void Ambulance::setInterface(IWindowInterface *windowInterface) {
 void Ambulance::setHospitals(std::vector<Seller *> hospitals) {
     this->hospitals = hospitals;
 
-    for (Seller *hospital: hospitals) {
+    for (Seller *hospital : hospitals) {
         interface->setLink(uniqueId, hospital->getUniqueId());
     }
 }

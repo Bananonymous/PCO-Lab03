@@ -1,3 +1,10 @@
+/**
+ * @file clinic.cpp
+ * @author Berberat Alex
+ * @author Surbeck Léon
+ * @brief Implementation of clinic fonctions.
+ */
+
 #include "clinic.h"
 #include "costs.h"
 #include <pcosynchro/pcothread.h>
@@ -12,13 +19,13 @@ Clinic::Clinic(int uniqueId, int fund, std::vector<ItemType> resourcesNeeded)
     interface->updateFund(uniqueId, fund);
     interface->consoleAppendText(uniqueId, "Factory created");
 
-    for (const auto &item: resourcesNeeded) {
+    for (const auto &item : resourcesNeeded) {
         stocks[item] = 0;
     }
 }
 
 bool Clinic::verifyResources() {
-    for (auto item: resourcesNeeded) {
+    for (auto item : resourcesNeeded) {
         if (stocks[item] == 0) {
             return false;
         }
@@ -27,9 +34,9 @@ bool Clinic::verifyResources() {
 }
 
 int Clinic::request(ItemType what, int qty) {
-    // TODO
+    // DONE
     clinic_mutex.lock();
-    int bill = getCostPerUnit(ItemType::PatientHealed)*qty;
+    int bill = getCostPerUnit(ItemType::PatientHealed) * qty;
 
     if (stocks[what] >= qty) {
         stocks[what] -= qty;
@@ -42,7 +49,7 @@ int Clinic::request(ItemType what, int qty) {
 }
 
 void Clinic::treatPatient() {
-    // TODO
+    // DONE
     int bill = getEmployeeSalary(getEmployeeThatProduces(ItemType::PatientHealed));
 
     clinic_mutex.lock();
@@ -51,8 +58,8 @@ void Clinic::treatPatient() {
         //Temps simulant un traitement
         interface->simulateWork();
 
-        // TODO
-        for (auto item: resourcesNeeded) {
+        // DONE
+        for (auto item : resourcesNeeded) {
             --stocks[item];
         }
         ++stocks[ItemType::PatientHealed];
@@ -65,13 +72,13 @@ void Clinic::treatPatient() {
 }
 
 void Clinic::orderResources() {
-    // TODO
+    // DONE
     auto randHosp = chooseRandomSeller(hospitals);
     int qty = 1;
     auto sick = ItemType::PatientSick;
     int bill = getCostPerUnit(sick) * qty;
-    if(money >=  bill) {
-        if (randHosp->request(sick, qty) != 0){
+    if (money >= bill) {
+        if (randHosp->request(sick, qty) != 0) {
             money -= bill;
             stocks[sick] += qty;
         }
@@ -79,7 +86,7 @@ void Clinic::orderResources() {
 
 
     auto randSupp = chooseRandomSeller(suppliers);
-    for (auto i: resourcesNeeded) {
+    for (auto i : resourcesNeeded) {
         if (i != ItemType::PatientSick && money - getCostPerUnit(i) * qty >= 0) {
             if (randSupp->request(i, qty)) {
                 stocks[i] += qty;
@@ -101,7 +108,7 @@ void Clinic::run() {
         if (verifyResources()) {
             treatPatient();
         } else {
-        orderResources();
+            orderResources();
         }
         clinic_mutex.unlock();
 
@@ -118,10 +125,10 @@ void Clinic::setHospitalsAndSuppliers(std::vector<Seller *> hospitals, std::vect
     this->hospitals = hospitals;
     this->suppliers = suppliers;
 
-    for (Seller *hospital: hospitals) {
+    for (Seller *hospital : hospitals) {
         interface->setLink(uniqueId, hospital->getUniqueId());
     }
-    for (Seller *supplier: suppliers) {
+    for (Seller *supplier : suppliers) {
         interface->setLink(uniqueId, supplier->getUniqueId());
     }
 }
@@ -155,11 +162,11 @@ std::map<ItemType, int> Clinic::getItemsForSale() {
 }
 
 
-Pulmonology::Pulmonology(int uniqueId, int fund) : Clinic::Clinic(uniqueId, fund, {ItemType::PatientSick, ItemType::Pill, ItemType::Thermometer}) {
+Pulmonology::Pulmonology(int uniqueId, int fund) : Clinic::Clinic(uniqueId, fund, { ItemType::PatientSick, ItemType::Pill, ItemType::Thermometer }) {
 }
 
-Cardiology::Cardiology(int uniqueId, int fund) : Clinic::Clinic(uniqueId, fund, {ItemType::PatientSick, ItemType::Syringe, ItemType::Stethoscope}) {
+Cardiology::Cardiology(int uniqueId, int fund) : Clinic::Clinic(uniqueId, fund, { ItemType::PatientSick, ItemType::Syringe, ItemType::Stethoscope }) {
 }
 
-Neurology::Neurology(int uniqueId, int fund) : Clinic::Clinic(uniqueId, fund, {ItemType::PatientSick, ItemType::Pill, ItemType::Scalpel}) {
+Neurology::Neurology(int uniqueId, int fund) : Clinic::Clinic(uniqueId, fund, { ItemType::PatientSick, ItemType::Pill, ItemType::Scalpel }) {
 }

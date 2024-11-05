@@ -1,13 +1,19 @@
+/**
+ * @file supplier.cpp
+ * @author Berberat Alex
+ * @author Surbeck Léon
+ * @brief Implementation of supplier fonctions.
+ */
+
 #include "supplier.h"
 #include "costs.h"
 #include <pcosynchro/pcothread.h>
 
-IWindowInterface* Supplier::interface = nullptr;
+IWindowInterface *Supplier::interface = nullptr;
 
 Supplier::Supplier(int uniqueId, int fund, std::vector<ItemType> resourcesSupplied)
-    : Seller(fund, uniqueId), resourcesSupplied(resourcesSupplied), nbSupplied(0)
-{
-    for (const auto& item : resourcesSupplied) {
+    : Seller(fund, uniqueId), resourcesSupplied(resourcesSupplied), nbSupplied(0) {
+    for (const auto &item : resourcesSupplied) {
         stocks[item] = 0;
     }
 
@@ -17,11 +23,11 @@ Supplier::Supplier(int uniqueId, int fund, std::vector<ItemType> resourcesSuppli
 
 
 int Supplier::request(ItemType it, int qty) {
-    // TODO
+    // DONE
     supplier_mutex.lock();
 
-    int bill = qty*getCostPerUnit(it);
-    if(stocks[it] >= qty) {
+    int bill = qty * getCostPerUnit(it);
+    if (stocks[it] >= qty) {
         stocks[it] -= qty;
         money += bill;
 
@@ -42,15 +48,15 @@ void Supplier::run() {
 
         supplier_mutex.lock();
 
-        // TODO
-        if(money >= supplierCost){
+        // DONE
+        if (money >= supplierCost) {
 
             /* Temps aléatoire borné qui simule l'attente du travail fini*/
             interface->simulateWork();
-            //TODO
+            //DONE
 
-            money-=supplierCost;
-            stocks[resourceSupplied]+=1;
+            money -= supplierCost;
+            stocks[resourceSupplied] += 1;
             ++nbSupplied;
         }
 
@@ -70,7 +76,7 @@ std::map<ItemType, int> Supplier::getItemsForSale() {
 
 int Supplier::getMaterialCost() {
     int totalCost = 0;
-    for (const auto& item : resourcesSupplied) {
+    for (const auto &item : resourcesSupplied) {
         totalCost += getCostPerUnit(item);
     }
     return totalCost;
@@ -84,11 +90,10 @@ void Supplier::setInterface(IWindowInterface *windowInterface) {
     interface = windowInterface;
 }
 
-std::vector<ItemType> Supplier::getResourcesSupplied() const
-{
+std::vector<ItemType> Supplier::getResourcesSupplied() const {
     return resourcesSupplied;
 }
 
-int Supplier::send(ItemType it, int qty, int bill){
+int Supplier::send(ItemType it, int qty, int bill) {
     return 0;
 }

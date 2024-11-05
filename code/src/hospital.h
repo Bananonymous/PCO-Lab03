@@ -1,3 +1,10 @@
+/**
+ * @file hospital.h
+ * @author Berberat Alex
+ * @author Surbeck Léon
+ * @brief Declaration of hospital fonctions.
+ */
+
 #ifndef HOSPITAL_H
 #define HOSPITAL_H
 
@@ -7,15 +14,14 @@
 #include "iwindowinterface.h"
 #include "seller.h"
 
-/**
- * @brief The Hospital class
- * Gère un hôpital qui reçoit des patients malades des ambulances et des patients soignés des cliniques.
- * Hérite de la classe Seller, car les patients peuvent être "échangés" comme des ressources.
- */
-class Hospital : public Seller 
-{
+ /**
+  * @brief The Hospital class
+  * Gère un hôpital qui reçoit des patients malades des ambulances et des patients soignés des cliniques.
+  * Hérite de la classe Seller, car les patients peuvent être "échangés" comme des ressources.
+  */
+class Hospital : public Seller {
 private:
-    PcoMutex hospital_mutex{PcoMutex::RecursionMode::Recursive};
+    PcoMutex hospital_mutex{ PcoMutex::RecursionMode::Recursive };
 
 public:
     /**
@@ -64,7 +70,7 @@ public:
      * @param clinics Une liste de cliniques avec lesquelles l'hôpital va interagir
      * Cette fonction configure les cliniques avec lesquelles l'hôpital va échanger des patients soignés.
      */
-    void setClinics(std::vector<Seller*> clinics);
+    void setClinics(std::vector<Seller *> clinics);
 
     int getNumberPatients();
     /**
@@ -78,7 +84,7 @@ public:
      * @param windowInterface Pointeur vers l'interface graphique utilisée pour l'affichage des logs et mises à jour
      * Configure l'interface pour afficher les actions de l'hôpital, comme les transferts de patients.
      */
-    static void setInterface(IWindowInterface* windowInterface);
+    static void setInterface(IWindowInterface *windowInterface);
 
 private:
     /**
@@ -99,8 +105,8 @@ private:
 
     void freeHealedPatient();
 
-    std::vector<Seller*> ambulances;  // Liste des ambulances liées à l'hôpital, qui apportent des patients malades
-    std::vector<Seller*> clinics;     // Liste des cliniques liées à l'hôpital, qui renvoient des patients soignés
+    std::vector<Seller *> ambulances;  // Liste des ambulances liées à l'hôpital, qui apportent des patients malades
+    std::vector<Seller *> clinics;     // Liste des cliniques liées à l'hôpital, qui renvoient des patients soignés
 
     int maxBeds;        // Nombre maximum de lits disponibles à l'hôpital
     int currentBeds;    // Nombre actuel de lits occupés, représente le nombre de patients présents
@@ -109,7 +115,7 @@ private:
 
     int nbFree; // Nombre de personnes qui sont sorties soignées de l'hôpital.
 
-    static IWindowInterface* interface;  // Pointeur statique vers l'interface utilisateur pour les logs et mises à jour visuelles
+    static IWindowInterface *interface;  // Pointeur statique vers l'interface utilisateur pour les logs et mises à jour visuelles
 };
 
 #endif // HOSPITAL_H

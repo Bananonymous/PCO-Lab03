@@ -1,3 +1,10 @@
+/**
+ * @file ambulance.h
+ * @author Berberat Alex
+ * @author Surbeck Léon
+ * @brief Declaration of ambulance fonctions.
+ */
+
 #ifndef AMBULANCE_H
 #define AMBULANCE_H
 
@@ -8,14 +15,14 @@
 #include "costs.h"
 #include "seller.h"
 
-/**
- * @brief La classe Ambulance représente une ambulance capable de transporter des patients
- *        et de gérer les ressources nécessaires à leur traitement.
- *        Hérite de la classe Seller pour gérer le trading de patients.
- */
+ /**
+  * @brief La classe Ambulance représente une ambulance capable de transporter des patients
+  *        et de gérer les ressources nécessaires à leur traitement.
+  *        Hérite de la classe Seller pour gérer le trading de patients.
+  */
 class Ambulance : public Seller {
 private:
-    PcoMutex ambulance_mutex{PcoMutex::RecursionMode::Recursive};
+    PcoMutex ambulance_mutex{ PcoMutex::RecursionMode::Recursive };
 
 public:
     /**
@@ -79,14 +86,14 @@ public:
      * @param hospitals Une liste d'hôpitaux avec lesquels l'ambulance va interagir
      * Cette fonction configure les hôpitaux pour lesquels l'ambulance effectuera des transferts de patients.
      */
-    void setHospitals(std::vector<Seller*> hospitals);
+    void setHospitals(std::vector<Seller *> hospitals);
 
     /**
      * @brief setInterface
      * @param windowInterface Pointeur vers l'interface graphique utilisée pour afficher les logs et mises à jour
      * Configure l'interface pour afficher les actions de l'ambulance.
      */
-    static void setInterface(IWindowInterface* windowInterface);
+    static void setInterface(IWindowInterface *windowInterface);
 
     /**
      * @brief getResourcesSupplied
@@ -106,8 +113,8 @@ protected:
 
     std::vector<ItemType> resourcesSupplied;  // Liste des items que ce fournisseur gère (ressources de l'ambulance)
     int nbTransfer;  // Nombre total d'items (patients) transférés par l'ambulance
-    static IWindowInterface* interface;  // Interface pour les logs et mises à jour
-    std::vector<Seller*> hospitals;  // Liste des hôpitaux associés à cette ambulance
+    static IWindowInterface *interface;  // Interface pour les logs et mises à jour
+    std::vector<Seller *> hospitals;  // Liste des hôpitaux associés à cette ambulance
 };
 
 #endif // AMBULANCE_H

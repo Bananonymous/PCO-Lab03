@@ -1,3 +1,11 @@
+/**
+ * @file tests_main.cpp
+ * @author Berberat Alex
+ * @author Surbeck Léon
+ * @brief Unit test to test if the different aspect of the project
+ *      work as intended.
+ */
+
 #include <gtest/gtest.h>
 #include "supplier.h"
 #include "ambulance.h"
@@ -12,8 +20,8 @@
 #include "clinic.h"
 #include <atomic>
 
-// Helper functions for testing
-void sendStuff(Seller& seller, ItemType itemType, std::atomic<int>& totalPaid) {
+ // Helper functions for testing
+void sendStuff(Seller &seller, ItemType itemType, std::atomic<int> &totalPaid) {
     int tot = 0;
     for (int i = 0; i < 1000; ++i) { // Reduced loop count to avoid excessive processing
         int qty = 1;
@@ -25,7 +33,7 @@ void sendStuff(Seller& seller, ItemType itemType, std::atomic<int>& totalPaid) {
     totalPaid += tot;
 }
 
-void requestStuff(Seller& seller, ItemType itemType, std::atomic<int>& totalGained) {
+void requestStuff(Seller &seller, ItemType itemType, std::atomic<int> &totalGained) {
     int tot = 0;
     for (int i = 0; i < 1000; ++i) { // Reduced loop count to avoid excessive processing
         int qty = 1;
@@ -43,7 +51,7 @@ TEST(SellerTest, TestHospitals) {
     std::atomic<int> totalPaid = 0;
     std::atomic<int> totalGained = 0;
 
-    IWindowInterface* windowInterface = new FakeInterface();
+    IWindowInterface *windowInterface = new FakeInterface();
     Hospital::setInterface(windowInterface);
 
     Hospital hospital(uniqueId, initialFund, 50); // Hospital with 50 beds
@@ -55,7 +63,7 @@ TEST(SellerTest, TestHospitals) {
         threads.emplace_back(std::make_unique<PcoThread>(sendStuff, std::ref(hospital), ItemType::PatientSick, std::ref(totalPaid)));
     }
 
-    for (auto& thread : threads) {
+    for (auto &thread : threads) {
         thread->join();
     }
 
@@ -78,10 +86,10 @@ TEST(SellerTest, TestAmbulance) {
     std::atomic<int> totalPaid = 0;
     std::atomic<int> totalGained = 0;
 
-    IWindowInterface* windowInterface = new FakeInterface();
+    IWindowInterface *windowInterface = new FakeInterface();
     Ambulance::setInterface(windowInterface);
 
-    Ambulance ambulance(uniqueId, initialFund, {ItemType::PatientSick}, {{ItemType::PatientSick, 10}});
+    Ambulance ambulance(uniqueId, initialFund, { ItemType::PatientSick }, { {ItemType::PatientSick, 10} });
 
     std::vector<std::unique_ptr<PcoThread>> threads;
 
@@ -90,7 +98,7 @@ TEST(SellerTest, TestAmbulance) {
         threads.emplace_back(std::make_unique<PcoThread>(sendStuff, std::ref(ambulance), ItemType::PatientSick, std::ref(totalPaid)));
     }
 
-    for (auto& thread : threads) {
+    for (auto &thread : threads) {
         thread->join();
     }
 
@@ -103,7 +111,7 @@ TEST(SellerTest, TestAmbulance) {
     EXPECT_GE(ambulance.getNumberPatients(), 0);
 }
 
-void requestSupplies(Supplier& supplier, ItemType itemType, std::atomic<int>& totalGained) {
+void requestSupplies(Supplier &supplier, ItemType itemType, std::atomic<int> &totalGained) {
     int tot = 0;
     for (int i = 0; i < 1000; ++i) { // Reduced loop count to avoid excessive processing
         int qty = 1;
@@ -118,17 +126,17 @@ TEST(SellerTest, TestSupplier) {
     const int initialFund = 30000;
     std::atomic<int> totalGained = 0;
 
-    IWindowInterface* windowInterface = new FakeInterface();
+    IWindowInterface *windowInterface = new FakeInterface();
     Supplier::setInterface(windowInterface);
 
-    Supplier supplier(uniqueId, initialFund, {ItemType::Syringe, ItemType::Pill});
+    Supplier supplier(uniqueId, initialFund, { ItemType::Syringe, ItemType::Pill });
 
     std::vector<std::unique_ptr<PcoThread>> threads;
     for (int i = 0; i < 2; ++i) {
         threads.emplace_back(std::make_unique<PcoThread>(requestSupplies, std::ref(supplier), ItemType::Syringe, std::ref(totalGained)));
     }
 
-    for (auto& thread : threads) {
+    for (auto &thread : threads) {
         thread->join();
     }
 
@@ -143,10 +151,10 @@ TEST(SellerTest, TestClinic) {
     std::atomic<int> totalPaid = 0;
     std::atomic<int> totalGained = 0;
 
-    IWindowInterface* windowInterface = new FakeInterface();
+    IWindowInterface *windowInterface = new FakeInterface();
     Clinic::setInterface(windowInterface);
 
-    Clinic clinic(uniqueId, initialFund, {ItemType::PatientSick, ItemType::Pill, ItemType::Thermometer});
+    Clinic clinic(uniqueId, initialFund, { ItemType::PatientSick, ItemType::Pill, ItemType::Thermometer });
 
     std::vector<std::unique_ptr<PcoThread>> threads;
     for (int i = 0; i < nbThreads / 2; ++i) {
@@ -154,7 +162,7 @@ TEST(SellerTest, TestClinic) {
         threads.emplace_back(std::make_unique<PcoThread>(requestStuff, std::ref(clinic), ItemType::PatientHealed, std::ref(totalGained)));
     }
 
-    for (auto& thread : threads) {
+    for (auto &thread : threads) {
         thread->join();
     }
 

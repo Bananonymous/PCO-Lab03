@@ -1,3 +1,10 @@
+/**
+ * @file clinic.h
+ * @author Berberat Alex
+ * @author Surbeck Léon
+ * @brief Declaration of clinic fonctions.
+ */
+
 #ifndef CLINIC_H
 #define CLINIC_H
 
@@ -7,14 +14,13 @@
 #include "iwindowinterface.h"
 #include "seller.h"
 
-/**
- * @brief La classe Clinic permet l'implémentation d'une clinique et de ses fonctions
- *        de gestion des patients, héritant de la classe Seller.
- */
-class Clinic : public Seller
-{
+ /**
+  * @brief La classe Clinic permet l'implémentation d'une clinique et de ses fonctions
+  *        de gestion des patients, héritant de la classe Seller.
+  */
+class Clinic : public Seller {
 private:
-    PcoMutex clinic_mutex{PcoMutex::RecursionMode::Recursive};
+    PcoMutex clinic_mutex{ PcoMutex::RecursionMode::Recursive };
 
 public:
     /**
@@ -25,13 +31,13 @@ public:
      */
     Clinic(int uniqueId, int fund, std::vector<ItemType> resourcesNeeded);
 
-   // PcoMutex mutex{PcoMutex::RecursionMode::Recursive};
+    // PcoMutex mutex{PcoMutex::RecursionMode::Recursive};
 
-    /**
-     * @brief run
-     * La routine principale de la clinique, qui appelle les fonctions privées pour que la clinique fonctionne continuellement.
-     * Cette méthode est exécutée dans un thread séparé pour permettre un fonctionnement asynchrone.
-     */
+     /**
+      * @brief run
+      * La routine principale de la clinique, qui appelle les fonctions privées pour que la clinique fonctionne continuellement.
+      * Cette méthode est exécutée dans un thread séparé pour permettre un fonctionnement asynchrone.
+      */
     void run();
 
     /**
@@ -78,7 +84,7 @@ public:
      * @param hospitals Vecteur d'hôpitaux avec lesquels la clinique va interagir
      * @param suppliers Vecteur de fournisseurs avec lesquels la clinique va travailler
      */
-    void setHospitalsAndSuppliers(std::vector<Seller*> hospitals, std::vector<Seller*> suppliers);
+    void setHospitalsAndSuppliers(std::vector<Seller *> hospitals, std::vector<Seller *> suppliers);
 
     int getNumberPatients();
 
@@ -93,17 +99,17 @@ public:
      * @param windowInterface Pointeur vers l'interface graphique utilisée pour afficher les logs et mises à jour
      * Configure l'interface pour l'affichage des actions de la clinique.
      */
-    static void setInterface(IWindowInterface* windowInterface);
+    static void setInterface(IWindowInterface *windowInterface);
 
 private:
-    std::vector<Seller*> suppliers;    // Liste des fournisseurs de ressources nécessaires à la clinique
-    std::vector<Seller*> hospitals;     // Liste des hôpitaux associés à la clinique
+    std::vector<Seller *> suppliers;    // Liste des fournisseurs de ressources nécessaires à la clinique
+    std::vector<Seller *> hospitals;     // Liste des hôpitaux associés à la clinique
 
     const std::vector<ItemType> resourcesNeeded; // Liste des ressources requises pour le fonctionnement de la clinique
 
     int nbTreated;                      // Nombre total de patients traités par la clinique
 
-    static IWindowInterface* interface; // Pointeur statique vers l'interface utilisateur pour les logs et mises à jour visuelles
+    static IWindowInterface *interface; // Pointeur statique vers l'interface utilisateur pour les logs et mises à jour visuelles
 
     /**
      * @brief orderResources
