@@ -58,7 +58,7 @@ void Hospital::transferPatientsFromClinic() {
     // TODO
 
   hospital_mutex.lock();
-    if(getNumberPatients() < MAX_BEDS_PER_HOSTPITAL) {
+    if(stocks[ItemType::PatientSick] + stocks[ItemType::PatientHealed] < MAX_BEDS_PER_HOSTPITAL) {
         auto randClinic = this->chooseRandomSeller(clinics);
         int bill = randClinic->request(ItemType::PatientHealed, 1);
             if(bill > 0 && bill <= money) {
@@ -88,7 +88,7 @@ void Hospital::transferPatientsFromClinic() {
  */
 int Hospital::send(ItemType it, int qty, int bill) {
     hospital_mutex.lock();
-    if(money >= bill && getNumberPatients() + qty <= this->maxBeds) {
+    if(money >= bill && stocks[ItemType::PatientSick] + stocks[ItemType::PatientHealed] + qty <= this->maxBeds) {
         nbHospitalised += qty;
         money -= bill;
         money -= getEmployeeSalary(EmployeeType::Nurse);
